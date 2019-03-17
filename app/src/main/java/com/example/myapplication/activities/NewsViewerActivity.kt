@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.activities
 
 import android.content.Context
 import android.content.Intent
@@ -9,7 +9,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
-
+import com.example.myapplication.NewsItem
+import com.example.myapplication.R
 
 class NewsViewerActivity : AppCompatActivity() {
     companion object {
