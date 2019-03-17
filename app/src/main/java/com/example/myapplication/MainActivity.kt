@@ -8,8 +8,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 
-
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnRecyclerItemClickCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,12 +21,16 @@ class MainActivity : AppCompatActivity() {
         tabLayout.setupWithViewPager(viewPager)
     }
 
+    override fun click(id : Int) {
+        startActivity(NewsViewerActivity.newIntent(this, id))
+    }
+
     class SampleFragmentPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
         companion object {
             const val PAGE_COUNT = 2
         }
 
-        private val tabTitles = arrayOf("Последние", "Избраноне")
+        private val tabTitles = arrayOf("Последние", "Избранные")
 
         override fun getCount(): Int {
             return PAGE_COUNT

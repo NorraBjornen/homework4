@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">My Application</string>
     <string name="add_to_fav">Добавить в избранное</string>
+    <string name="newsItem_already">Уже в избранном</string>
+    <string name="newsItem_added">Новость добавлена в избранное</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
+    <string name="recent">Последние</string>
+    <string name="favourites">Избранные</string>
 </resources>
