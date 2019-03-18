@@ -50,7 +50,7 @@ class MyItemDecoration (context: Context) : RecyclerView.ItemDecoration() {
 
     private fun hasDividerOnBottom(view: View, parent: RecyclerView, state: RecyclerView.State): Boolean {
         val position = (view.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
-        return (position < state.itemCount && parent.adapter!!.getItemViewType(position) != Adapter.TYPE_ITEM
-                && parent.adapter!!.getItemViewType(position + 1) != Adapter.TYPE_ITEM)
+        return (position < state.itemCount && parent.adapter!!.getItemViewType(position) != Adapter.TYPE_HEADER
+                && parent.adapter!!.getItemViewType(position + 1) != Adapter.TYPE_HEADER)
     }
 }
