@@ -3,7 +3,7 @@ package com.example.myapplication.holders
 import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import com.example.myapplication.adapters.Adapter
+import com.example.myapplication.adapters.MyAdapter
 import com.example.myapplication.R
 import kotlinx.android.synthetic.main.date_item.view.*
 import java.text.DateFormatSymbols
@@ -20,7 +20,7 @@ class DateHolder(itemView: View, private val context : Context) : RecyclerView.V
 
     fun bind(dateText: String){
         val c = Calendar.getInstance()
-        c.time = Adapter.usualFormat.parse(dateText)
+        c.time = MyAdapter.usualFormat.parse(dateText)
 
         txt.text = when(whichDay(c)){
             DAYS.TODAY -> context.resources.getString(R.string.today)

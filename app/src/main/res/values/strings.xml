@@ -7,4 +7,6 @@
     <string name="yesterday">Вчера</string>
     <string name="recent">Последние</string>
     <string name="favourites">Избранные</string>
+    <string name="delete_fav">Удалить из избранного</string>
+    <string name="deleted">Удалено из избранного</string>
 </resources>

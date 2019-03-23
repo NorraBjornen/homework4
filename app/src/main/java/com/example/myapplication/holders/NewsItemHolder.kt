@@ -2,7 +2,7 @@ package com.example.myapplication.holders
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import com.example.myapplication.NewsItem
+import com.example.myapplication.database.NewsItem
 import com.example.myapplication.OnRecyclerItemClickCallback
 import kotlinx.android.synthetic.main.news_item.view.*
 

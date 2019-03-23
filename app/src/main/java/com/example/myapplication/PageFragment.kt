@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import com.example.myapplication.activities.MainActivity
-import com.example.myapplication.adapters.Adapter
-import kotlin.collections.ArrayList
+import com.example.myapplication.adapters.MyAdapter
+import com.example.myapplication.async_tasks.AdapterInitAsyncTask
+import com.example.myapplication.async_tasks.AdapterNotifyAsyncTask
+import java.lang.ref.WeakReference
 
 class PageFragment : Fragment() {
     companion object {
@@ -25,8 +25,7 @@ class PageFragment : Fragment() {
     }
 
     private var currentTabNumber: Int = 0
-    private lateinit var adapter : Adapter
-    private val headersIds : ArrayList<Int> = ArrayList()
+    lateinit var adapter : MyAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,20 +34,15 @@ class PageFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            val view = inflater.inflate(R.layout.fragment_page, container, false)
-            val recyclerView = view as RecyclerView
-
-            recyclerView.layoutManager = LinearLayoutManager(activity)
-            adapter = Adapter(headersIds, currentTabNumber, activity as MainActivity)
-
-            recyclerView.adapter = adapter
-            recyclerView.addItemDecoration(MyItemDecoration(activity!!))
-            return view
+        val view = inflater.inflate(R.layout.fragment_page, container, false)
+        val recyclerView = view as RecyclerView
+        AdapterInitAsyncTask(this, WeakReference(recyclerView)).execute(currentTabNumber)
+        return view
     }
 
     override fun onResume() {
         super.onResume()
-        if(NewsItem.favouritesChanged && currentTabNumber == 2)
-            adapter.update()
+        if(currentTabNumber == 2 && Repository.hasChanges)
+            AdapterNotifyAsyncTask(adapter).execute()
     }
 }

@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout
 import android.support.v4.view.ViewPager
 import com.example.myapplication.OnRecyclerItemClickCallback
 import com.example.myapplication.R
+import com.example.myapplication.adapters.MyAdapter
 import com.example.myapplication.adapters.SampleFragmentPagerAdapter
 
 class MainActivity : AppCompatActivity(), OnRecyclerItemClickCallback {

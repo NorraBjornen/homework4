@@ -6,16 +6,19 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.example.myapplication.*
 import com.example.myapplication.activities.MainActivity
+import com.example.myapplication.database.NewsItem
 import com.example.myapplication.holders.DateHolder
 import com.example.myapplication.holders.NewsItemHolder
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class Adapter(private val headersIds : ArrayList<Int>,
-              private val currentTabNumber : Int,
-              private val activity: MainActivity
+class MyAdapter(private val currentTabNumber : Int,
+                private val activity: MainActivity
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private val headersIds : ArrayList<Int> = ArrayList()
 
     companion object {
         const val TYPE_ITEM = 0
@@ -23,11 +26,7 @@ class Adapter(private val headersIds : ArrayList<Int>,
         val usualFormat = SimpleDateFormat("dd.MM.yyyy", Locale("ru"))
     }
 
-    init {
-        fillData()
-    }
-
-    private var map : HashMap<Int, NewsItem>? = null
+    private val map : HashMap<Int, NewsItem> = HashMap()
     private lateinit var newsList : List<NewsItem>
 
     override fun getItemViewType(position: Int): Int = if (headersIds.contains(position)) TYPE_HEADER else TYPE_ITEM
@@ -54,33 +53,25 @@ class Adapter(private val headersIds : ArrayList<Int>,
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         when(viewHolder.itemViewType){
-            TYPE_ITEM -> (viewHolder as NewsItemHolder).bind(map!![position]!!)
-            TYPE_HEADER -> (viewHolder as DateHolder).bind(map!![position]!!.date)
+            TYPE_ITEM -> (viewHolder as NewsItemHolder).bind(map[position]!!)
+            TYPE_HEADER -> (viewHolder as DateHolder).bind(map[position]!!.date)
         }
     }
 
     override fun getItemCount(): Int = newsList.size + headersIds.size
 
-    fun update(){
-        fillData()
-        notifyDataSetChanged()
-    }
-
-    private fun fillData(){
-        if(map == null)
-            map = HashMap()
-
+    fun fillData(){
         newsList = when (currentTabNumber) {
-            1 -> NewsItem.recentIds.map { NewsItem.news[it] }
-            2 -> NewsItem.favouriteIds.map { NewsItem.news[it] }
-            else -> NewsItem.news.toList()
+            1 -> Repository.getAllNews()
+            2 -> Repository.getFavouriteNews()
+            else -> Repository.getAllNews()
         }.sortedWith(compareByDescending{ usualFormat.parse(it.date) })
 
         var headersCount = 0
         var prevDate : String? = null
         var i = 0
         headersIds.clear()
-        map!!.clear()
+        map.clear()
 
         newsList.forEach {
             val itemDate = it.date
@@ -88,7 +79,7 @@ class Adapter(private val headersIds : ArrayList<Int>,
                 prevDate = itemDate
                 val headerIndex = i + headersCount
                 headersIds.add(headerIndex)
-                map!![headerIndex] = it
+                map[headerIndex] = it
                 headersCount++
             }
             i++
@@ -96,10 +87,11 @@ class Adapter(private val headersIds : ArrayList<Int>,
         val fullSize = headersCount + newsList.size
         newsList.forEach {
             for(j in 0 until fullSize)
-                if(!map!!.containsKey(j)){
-                    map!![j] = it
+                if(!map.containsKey(j)){
+                    map[j] = it
                     break
                 }
         }
+        Repository.hasChanges = false
     }
 }
