@@ -9,13 +9,14 @@ import com.example.myapplication.activities.MainActivity
 import com.example.myapplication.database.NewsItem
 import com.example.myapplication.holders.DateHolder
 import com.example.myapplication.holders.NewsItemHolder
+import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class MyAdapter(private val currentTabNumber : Int,
-                private val activity: MainActivity
+                private val activity: WeakReference<MainActivity>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val headersIds : ArrayList<Int> = ArrayList()
@@ -39,14 +40,14 @@ class MyAdapter(private val currentTabNumber : Int,
                     parent,
                     false
                 ),
-                activity as OnRecyclerItemClickCallback
+                activity.get() as OnRecyclerItemClickCallback
             )
             else -> DateHolder(
                 LayoutInflater.from(parent.context).inflate(
                     R.layout.date_item,
                     parent,
                     false
-                ), activity as Context
+                ), activity.get() as Context
             )
         }
     }

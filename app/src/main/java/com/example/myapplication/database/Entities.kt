@@ -9,7 +9,8 @@ data class NewsItem (@PrimaryKey(autoGenerate = true) var id: Int,
                      @ColumnInfo(name = "name") var name: String,
                      @ColumnInfo(name = "summary") var summary : String,
                      @ColumnInfo(name = "content") var content: String,
-                     @ColumnInfo(name = "date") var date: String
+                     @ColumnInfo(name = "date") var date: String,
+                     var isFav: Boolean = false
 )
 
 @Entity(tableName = "favouritesTable")

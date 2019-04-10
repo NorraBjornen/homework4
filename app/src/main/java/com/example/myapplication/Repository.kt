@@ -24,21 +24,25 @@ class Repository(private val newsDao: NewsDao){
             return favourites
         }
 
-        fun isFavourite(id: Int): Boolean {
+        private fun isFavourite(id: Int): Boolean {
             return repository.newsDao.isFavourite(id) == 1
         }
 
-        fun addToFavourites(id: Int) {
-            repository.newsDao.addToFavourite(Favourite(id))
+        fun addToFavourites(newsItem: NewsItem) {
+            repository.newsDao.addToFavourite(Favourite(newsItem.id))
+            newsItem.isFav = true
             hasChanges = true
         }
 
         fun getNewsItemById(id: Int): NewsItem {
-            return repository.newsDao.getNewsItemById(id)
+            val newsItem = repository.newsDao.getNewsItemById(id)
+            newsItem.isFav = isFavourite(id)
+            return newsItem
         }
 
-        fun deleteFavourite(id : Int){
-            repository.newsDao.deleteFavourite(id)
+        fun deleteFavourite(newsItem: NewsItem){
+            repository.newsDao.deleteFavourite(newsItem.id)
+            newsItem.isFav = false
             hasChanges = true
         }
 

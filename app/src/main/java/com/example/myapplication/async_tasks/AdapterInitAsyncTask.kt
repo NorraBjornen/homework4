@@ -12,15 +12,15 @@ import java.lang.ref.WeakReference
 
 class AdapterInitAsyncTask(private val fragment : PageFragment, private val recyclerView: WeakReference<RecyclerView>) : AsyncTask<Int, Unit, MyAdapter>() {
     override fun doInBackground(vararg params: Int?): MyAdapter {
-        val adapter = MyAdapter(params[0]!!, fragment.activity as MainActivity)
+        val adapter = MyAdapter(params[0]!!, WeakReference(fragment.activity as MainActivity))
         adapter.fillData()
         return adapter
     }
 
     override fun onPostExecute(myAdapter: MyAdapter) {
-        recyclerView.get()!!.layoutManager = LinearLayoutManager(fragment.activity)
-        recyclerView.get()!!.adapter = myAdapter
-        recyclerView.get()!!.addItemDecoration(MyItemDecoration(fragment.activity as Context))
+        recyclerView.get()?.layoutManager = LinearLayoutManager(fragment.activity)
+        recyclerView.get()?.adapter = myAdapter
+        recyclerView.get()?.addItemDecoration(MyItemDecoration(fragment.activity as Context))
         fragment.adapter = myAdapter
     }
 }

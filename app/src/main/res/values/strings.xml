@@ -9,4 +9,5 @@
     <string name="favourites">Избранные</string>
     <string name="delete_fav">Удалить из избранного</string>
     <string name="deleted">Удалено из избранного</string>
+    <string name="loading">Загрузка...</string>
 </resources>

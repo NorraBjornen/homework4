@@ -29,6 +29,7 @@ class PageFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        retainInstance = true
         if (arguments != null)
             currentTabNumber = arguments!!.getInt(ARG_PAGE)
     }
@@ -43,6 +44,6 @@ class PageFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if(currentTabNumber == 2 && Repository.hasChanges)
-            AdapterNotifyAsyncTask(adapter).execute()
+            AdapterNotifyAsyncTask(WeakReference(adapter)).execute()
     }
 }

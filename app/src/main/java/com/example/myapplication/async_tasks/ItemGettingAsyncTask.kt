@@ -13,16 +13,14 @@ class ItemGettingAsyncTask(private val content : WeakReference<TextView>, privat
     }
 
     override fun onPostExecute(newsItem: NewsItem) {
-        val activity = content.get()!!.context as NewsViewerActivity
+        val activity = content.get()?.context as NewsViewerActivity
         activity.newsItem = newsItem
         activity.title = newsItem.name
-        content.get()!!.text = newsItem.content
-        date.get()!!.text = newsItem.date
-        Thread{
-            if(Repository.isFavourite(newsItem.id))
-                activity.setIconsAdded()
-            else
-                activity.setIconsNotAdded()
-        }.start()
+        content.get()?.text = newsItem.content
+        date.get()?.text = newsItem.date
+        if(newsItem.isFav)
+            activity.setIconsAdded()
+        else
+            activity.setIconsNotAdded()
     }
 }

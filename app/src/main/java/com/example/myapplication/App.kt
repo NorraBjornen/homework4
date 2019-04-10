@@ -12,7 +12,10 @@ class App : Application() {
         val newsDao = Room.databaseBuilder(
             applicationContext.applicationContext,
             NewsDatabase::class.java,
-            "myApp.db").build().newsDao()
+            "myApp.db")
+            .fallbackToDestructiveMigration()
+            .build()
+            .newsDao()
 
         Repository.set(newsDao)
 
