@@ -7,6 +7,7 @@ import com.example.myapplication.activities.NewsViewerActivity
 import com.example.myapplication.database.NewsItem
 import java.lang.ref.WeakReference
 
+/*
 class ItemGettingAsyncTask(private val content : WeakReference<TextView>, private val date : WeakReference<TextView>) : AsyncTask<Int, Void, NewsItem>() {
     override fun doInBackground(vararg params: Int?): NewsItem {
         return Repository.getNewsItemById(params[0] as Int)
@@ -23,4 +24,4 @@ class ItemGettingAsyncTask(private val content : WeakReference<TextView>, privat
         else
             activity.setIconsNotAdded()
     }
-}
+}*/

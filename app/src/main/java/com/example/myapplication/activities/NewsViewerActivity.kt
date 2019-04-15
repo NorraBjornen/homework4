@@ -10,9 +10,12 @@ import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import com.example.myapplication.*
-import com.example.myapplication.async_tasks.ItemGettingAsyncTask
 import com.example.myapplication.database.NewsItem
 import java.lang.ref.WeakReference
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
+
 
 class NewsViewerActivity: AppCompatActivity() {
     companion object {
@@ -41,14 +44,27 @@ class NewsViewerActivity: AppCompatActivity() {
         menu.getItem(0).icon = ContextCompat.getDrawable(this, R.drawable.ic_action_delete_disabled)
         menu.getItem(1).icon = ContextCompat.getDrawable(this, R.drawable.ic_action_fav_disabled)
         title = resources.getString(R.string.loading)
-        ItemGettingAsyncTask(WeakReference(content), WeakReference(date)).execute(id)
+
+        var d = Repository.dao().getNewsItemById(id!!)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe{ newsItem ->
+                this.newsItem = newsItem
+                title = newsItem.name
+                content.text = newsItem.content
+                date.text = newsItem.date
+                if(newsItem.isFav == 1)
+                    setIconsAdded()
+                else
+                    setIconsNotAdded()
+            }
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.menu_item_fav -> {
-                if(newsItem.isFav)
+                if(newsItem.isFav == 1)
                     Toast.makeText(this, resources.getString(R.string.newsItem_already), Toast.LENGTH_SHORT).show()
                 else{
                     Thread{Repository.addToFavourites(newsItem)}.start()

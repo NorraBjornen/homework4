@@ -10,6 +10,7 @@ import com.example.myapplication.activities.MainActivity
 import com.example.myapplication.adapters.MyAdapter
 import java.lang.ref.WeakReference
 
+/*
 class AdapterInitAsyncTask(private val fragment : PageFragment, private val recyclerView: WeakReference<RecyclerView>) : AsyncTask<Int, Unit, MyAdapter>() {
     override fun doInBackground(vararg params: Int?): MyAdapter {
         val adapter = MyAdapter(params[0]!!, WeakReference(fragment.activity as MainActivity))
@@ -23,4 +24,4 @@ class AdapterInitAsyncTask(private val fragment : PageFragment, private val recy
         recyclerView.get()?.addItemDecoration(MyItemDecoration(fragment.activity as Context))
         fragment.adapter = myAdapter
     }
-}
+}*/

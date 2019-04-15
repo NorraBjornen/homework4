@@ -1,13 +1,16 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import com.example.myapplication.activities.MainActivity
 import com.example.myapplication.adapters.MyAdapter
-import com.example.myapplication.async_tasks.AdapterInitAsyncTask
+//import com.example.myapplication.async_tasks.AdapterInitAsyncTask
 import com.example.myapplication.async_tasks.AdapterNotifyAsyncTask
 import java.lang.ref.WeakReference
 
@@ -37,7 +40,12 @@ class PageFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_page, container, false)
         val recyclerView = view as RecyclerView
-        AdapterInitAsyncTask(this, WeakReference(recyclerView)).execute(currentTabNumber)
+
+        adapter = MyAdapter(currentTabNumber, WeakReference(activity as MainActivity), WeakReference(recyclerView))
+
+        adapter.fillData()
+
+        //AdapterInitAsyncTask(this, WeakReference(recyclerView)).execute(currentTabNumber)
         return view
     }
 
