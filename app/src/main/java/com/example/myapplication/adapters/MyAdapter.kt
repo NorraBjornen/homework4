@@ -1,7 +1,6 @@
 package com.example.myapplication.adapters
 
 import android.content.Context
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -21,11 +20,8 @@ import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 
 class MyAdapter(private val currentTabNumber : Int,
-                private val activity: WeakReference<MainActivity>,
-                private val recyclerViewReference: WeakReference<RecyclerView>
+                private val activity: WeakReference<MainActivity>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private val headersIds : ArrayList<Int> = ArrayList()
 
     companion object {
         const val TYPE_ITEM = 0
@@ -33,8 +29,9 @@ class MyAdapter(private val currentTabNumber : Int,
         val usualFormat = SimpleDateFormat("dd.MM.yyyy", Locale("ru"))
     }
 
+    private val headersIds : ArrayList<Int> = ArrayList()
     private val map : HashMap<Int, NewsItem> = HashMap()
-    private lateinit var newsList : List<NewsItem>
+    private var newsList : List<NewsItem> = emptyList()
 
     private val disposable = CompositeDisposable()
 
@@ -80,8 +77,7 @@ class MyAdapter(private val currentTabNumber : Int,
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { l ->
                         newsList = l
-                        set()
-                        Repository.hasChanges = false
+                        sort()
                     })
             }
             else -> {
@@ -90,13 +86,13 @@ class MyAdapter(private val currentTabNumber : Int,
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe{ l ->
                         newsList = l
-                        set()
+                        sort()
                     })
             }
         }
     }
 
-    fun set(){
+    private fun sort(){
         var headersCount = 0
         var prevDate : String? = null
         var i = 0
@@ -123,10 +119,7 @@ class MyAdapter(private val currentTabNumber : Int,
                 }
         }
 
-        val recyclerView = recyclerViewReference.get()
-        recyclerView?.layoutManager = LinearLayoutManager(activity.get())
-        recyclerView?.adapter = this@MyAdapter
-        recyclerView?.addItemDecoration(MyItemDecoration(activity.get() as Context))
+        notifyDataSetChanged()
     }
 
     fun dispose(){

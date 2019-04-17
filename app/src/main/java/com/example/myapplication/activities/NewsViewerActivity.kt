@@ -12,13 +12,12 @@ import android.widget.Toast
 import com.example.myapplication.*
 import com.example.myapplication.database.NewsItem
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 
 class NewsViewerActivity: AppCompatActivity() {
     companion object {
         const val ARG_NEWS_ID = "news_id"
-        const val ADDED = 1
-        const val REMOVED = -1
 
         fun newIntent(context: Context, id : Int) : Intent {
             val intent = Intent(context, NewsViewerActivity::class.java)
@@ -27,6 +26,7 @@ class NewsViewerActivity: AppCompatActivity() {
         }
     }
 
+    private val disposable = CompositeDisposable()
     private var id : Int? = null
     private lateinit var content : TextView
     private lateinit var date : TextView
@@ -42,7 +42,7 @@ class NewsViewerActivity: AppCompatActivity() {
         menu.getItem(1).icon = ContextCompat.getDrawable(this, R.drawable.ic_action_fav_disabled)
         title = resources.getString(R.string.loading)
 
-        var d = Repository.dao().getNewsItemById(id!!)
+        disposable.add(Repository.dao().getNewsItemById(id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe{ newsItem ->
@@ -54,7 +54,7 @@ class NewsViewerActivity: AppCompatActivity() {
                     setIconsAdded()
                 else
                     setIconsNotAdded()
-            }
+            })
         return true
     }
 
@@ -64,15 +64,15 @@ class NewsViewerActivity: AppCompatActivity() {
                 if(newsItem.isFav == 1)
                     Toast.makeText(this, resources.getString(R.string.newsItem_already), Toast.LENGTH_SHORT).show()
                 else{
-                    Thread{Repository.addToFavourites(newsItem)}.start()
+                    Repository.addToFavourite(id!!)
                     Toast.makeText(this, resources.getString(R.string.newsItem_added), Toast.LENGTH_SHORT).show()
                     setIconsAdded()
                 }
                 return true
             }
             R.id.menu_item_del -> {
+                Repository.deleteFavourite(id!!)
                 Toast.makeText(this, resources.getString(R.string.deleted), Toast.LENGTH_SHORT).show()
-                Thread{Repository.deleteFavourite(newsItem)}.start()
                 setIconsNotAdded()
                 return true
             }
@@ -80,14 +80,14 @@ class NewsViewerActivity: AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun setIconsAdded(){
+    private fun setIconsAdded(){
         menu.getItem(0).icon = ContextCompat.getDrawable(this, R.drawable.ic_action_delete)
         menu.getItem(1).icon = ContextCompat.getDrawable(this, R.drawable.ic_action_fav_added)
         menu.getItem(0).isEnabled = true
         menu.getItem(1).isEnabled = true
     }
 
-    fun setIconsNotAdded(){
+    private fun setIconsNotAdded(){
         menu.getItem(0).icon = ContextCompat.getDrawable(this, R.drawable.ic_action_delete_disabled)
         menu.getItem(1).icon = ContextCompat.getDrawable(this, R.drawable.ic_action_fav)
         menu.getItem(0).isEnabled = false
@@ -101,5 +101,10 @@ class NewsViewerActivity: AppCompatActivity() {
         id = intent.getIntExtra(ARG_NEWS_ID, 0)
         content = findViewById(R.id.news_content)
         date = findViewById(R.id.news_date)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        disposable.dispose()
     }
 }

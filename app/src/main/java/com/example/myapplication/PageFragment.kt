@@ -1,9 +1,11 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.example.myapplication.activities.MainActivity
@@ -41,14 +43,12 @@ class PageFragment : Fragment() {
         //Делаю dispose именно здесь, так как retainInstance = true,
         //и вызов onCreateView является показателем того, что активити была пересоздана (кроме первого раза)
 
-        adapter = MyAdapter(currentTabNumber, WeakReference(activity as MainActivity), WeakReference(recyclerView))
+        adapter = MyAdapter(currentTabNumber, WeakReference(activity as MainActivity))
         adapter?.fillData()
-        return view
-    }
 
-    override fun onResume() {
-        super.onResume()
-        if(currentTabNumber == 2 && Repository.hasChanges)
-            adapter?.fillData()
+        recyclerView.layoutManager = LinearLayoutManager(activity as Context)
+        recyclerView.addItemDecoration(MyItemDecoration(activity as Context))
+        recyclerView.adapter = adapter
+        return view
     }
 }

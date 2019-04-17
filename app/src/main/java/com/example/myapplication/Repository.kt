@@ -1,7 +1,6 @@
 package com.example.myapplication
 
 import com.example.myapplication.database.NewsDao
-import com.example.myapplication.database.NewsItem
 
 class Repository(private val newsDao: NewsDao){
     companion object {
@@ -15,18 +14,12 @@ class Repository(private val newsDao: NewsDao){
             repository = Repository(newsDao)
         }
 
-        fun addToFavourites(newsItem: NewsItem) {
-            repository.newsDao.addToFavourite(newsItem.id)
-            newsItem.isFav = 1
-            hasChanges = true
+        fun addToFavourite(id : Int){
+            Thread{ repository.newsDao.addToFavourite(id)}.start()
         }
 
-        fun deleteFavourite(newsItem: NewsItem){
-            repository.newsDao.deleteFavourite(newsItem.id)
-            newsItem.isFav = 0
-            hasChanges = true
+        fun deleteFavourite(id : Int){
+            Thread{ repository.newsDao.deleteFavourite(id)}.start()
         }
-
-        var hasChanges = false
     }
 }

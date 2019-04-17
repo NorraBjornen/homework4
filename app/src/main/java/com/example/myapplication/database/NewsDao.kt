@@ -2,7 +2,7 @@ package com.example.myapplication.database
 
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy.REPLACE
+import android.arch.persistence.room.OnConflictStrategy.IGNORE
 import android.arch.persistence.room.Query
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -15,7 +15,7 @@ interface NewsDao {
     @Query("SELECT * FROM newsTable WHERE id=:idToSelect")
     fun getNewsItemById(idToSelect: Int): Single<NewsItem>
 
-    @Insert(onConflict = REPLACE)
+    @Insert(onConflict = IGNORE)
     fun insert(newsItem: NewsItem)
 
     @Query("UPDATE newsTable SET fav=1 WHERE id=:id")
