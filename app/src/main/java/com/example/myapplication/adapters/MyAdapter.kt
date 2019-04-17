@@ -3,7 +3,6 @@ package com.example.myapplication.adapters
 import android.content.Context
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.example.myapplication.*
@@ -13,18 +12,17 @@ import com.example.myapplication.holders.DateHolder
 import com.example.myapplication.holders.NewsItemHolder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subscribers.DisposableSubscriber
-import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import io.reactivex.Flowable
+import io.reactivex.disposables.CompositeDisposable
 
 class MyAdapter(private val currentTabNumber : Int,
                 private val activity: WeakReference<MainActivity>,
-                private val recyclerView: WeakReference<RecyclerView>
+                private val recyclerViewReference: WeakReference<RecyclerView>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val headersIds : ArrayList<Int> = ArrayList()
@@ -37,6 +35,8 @@ class MyAdapter(private val currentTabNumber : Int,
 
     private val map : HashMap<Int, NewsItem> = HashMap()
     private lateinit var newsList : List<NewsItem>
+
+    private val disposable = CompositeDisposable()
 
     override fun getItemViewType(position: Int): Int = if (headersIds.contains(position)) TYPE_HEADER else TYPE_ITEM
 
@@ -72,22 +72,26 @@ class MyAdapter(private val currentTabNumber : Int,
     fun fillData(){
         when (currentTabNumber) {
             2 -> {
-                var d = Repository.dao().getFavouriteNews()
+                disposable.add(Repository.dao().getAllNews()
                     .subscribeOn(Schedulers.io())
+                    .flatMap{ newsList ->
+                        Flowable.fromIterable(newsList).filter { newsItem -> newsItem.isFav == 1 }.toList().toFlowable()
+                    }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { l ->
-                        newsList = l.sortedWith(compareByDescending{ usualFormat.parse(it.date) })
+                        newsList = l
                         set()
-                    }
+                        Repository.hasChanges = false
+                    })
             }
             else -> {
-                var d = Repository.dao().getAllNews()
+                disposable.add(Repository.dao().getAllNews()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe{ l ->
                         newsList = l
                         set()
-                    }
+                    })
             }
         }
     }
@@ -119,9 +123,13 @@ class MyAdapter(private val currentTabNumber : Int,
                 }
         }
 
-        Repository.hasChanges = false
-        recyclerView.get()?.layoutManager = LinearLayoutManager(activity.get())
-        recyclerView.get()?.adapter = this@MyAdapter
-        recyclerView.get()?.addItemDecoration(MyItemDecoration(activity.get() as Context))
+        val recyclerView = recyclerViewReference.get()
+        recyclerView?.layoutManager = LinearLayoutManager(activity.get())
+        recyclerView?.adapter = this@MyAdapter
+        recyclerView?.addItemDecoration(MyItemDecoration(activity.get() as Context))
+    }
+
+    fun dispose(){
+        disposable.dispose()
     }
 }

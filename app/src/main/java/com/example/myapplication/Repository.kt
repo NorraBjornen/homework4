@@ -8,7 +8,7 @@ class Repository(private val newsDao: NewsDao){
         private lateinit var repository: Repository
 
         fun dao() : NewsDao{
-            return repository.newsDao;
+            return repository.newsDao
         }
 
         fun set(newsDao: NewsDao) {

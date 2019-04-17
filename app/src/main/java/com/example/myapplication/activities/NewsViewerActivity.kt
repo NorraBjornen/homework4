@@ -11,11 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.myapplication.*
 import com.example.myapplication.database.NewsItem
-import java.lang.ref.WeakReference
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.android.schedulers.AndroidSchedulers;
-
-
 
 class NewsViewerActivity: AppCompatActivity() {
     companion object {
@@ -34,7 +31,7 @@ class NewsViewerActivity: AppCompatActivity() {
     private lateinit var content : TextView
     private lateinit var date : TextView
     private lateinit var menu: Menu
-    lateinit var newsItem : NewsItem
+    private lateinit var newsItem : NewsItem
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         this.menu = menu
