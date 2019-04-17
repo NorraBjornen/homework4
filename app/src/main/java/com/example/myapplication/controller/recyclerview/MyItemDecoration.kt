@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.controller.recyclerview
 
 import android.content.Context
 import android.graphics.Canvas
@@ -8,7 +8,6 @@ import android.graphics.Rect
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
 import android.view.View
-import com.example.myapplication.adapters.MyAdapter
 
 class MyItemDecoration (context: Context) : RecyclerView.ItemDecoration() {
     private val paint = Paint()
@@ -25,7 +24,7 @@ class MyItemDecoration (context: Context) : RecyclerView.ItemDecoration() {
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         val position = parent.getChildAdapterPosition(view)
         val viewType = parent.adapter!!.getItemViewType(position)
-        if (viewType == MyAdapter.TYPE_ITEM && hasDividerOnBottom(view, parent, state))
+        if (viewType == RecyclerViewAdapter.TYPE_ITEM && hasDividerOnBottom(view, parent, state))
             outRect.set(0, 0, 0, height)
         else
             outRect.setEmpty()
@@ -36,7 +35,7 @@ class MyItemDecoration (context: Context) : RecyclerView.ItemDecoration() {
             val view = parent.getChildAt(i)
             val position = parent.getChildAdapterPosition(view)
             val viewType = parent.adapter!!.getItemViewType(position)
-            if (viewType == MyAdapter.TYPE_ITEM && hasDividerOnBottom(view, parent, state)) {
+            if (viewType == RecyclerViewAdapter.TYPE_ITEM && hasDividerOnBottom(view, parent, state)) {
                 c.drawRect(
                     view.left.toFloat(),
                     view.bottom.toFloat(),
@@ -50,8 +49,8 @@ class MyItemDecoration (context: Context) : RecyclerView.ItemDecoration() {
 
     private fun hasDividerOnBottom(view: View, parent: RecyclerView, state: RecyclerView.State): Boolean {
         val position = (view.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
-        return (position < state.itemCount && parent.adapter!!.getItemViewType(position) != MyAdapter.TYPE_HEADER
-                && parent.adapter!!.getItemViewType(position + 1) != MyAdapter.TYPE_HEADER
+        return (position < state.itemCount && parent.adapter!!.getItemViewType(position) != RecyclerViewAdapter.TYPE_HEADER
+                && parent.adapter!!.getItemViewType(position + 1) != RecyclerViewAdapter.TYPE_HEADER
                 && parent.adapter!!.itemCount >= position + 2)
     }
 }

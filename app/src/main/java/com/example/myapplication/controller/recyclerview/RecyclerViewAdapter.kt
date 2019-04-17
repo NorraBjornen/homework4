@@ -1,32 +1,31 @@
-package com.example.myapplication.adapters
+package com.example.myapplication.controller.recyclerview
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.example.myapplication.*
-import com.example.myapplication.activities.MainActivity
-import com.example.myapplication.database.NewsItem
-import com.example.myapplication.holders.DateHolder
-import com.example.myapplication.holders.NewsItemHolder
+import com.example.myapplication.activities.NewsListViewerActivity
+import com.example.myapplication.model.database.NewsItem
+import com.example.myapplication.controller.recyclerview.holders.DateHolder
+import com.example.myapplication.controller.recyclerview.holders.NewsItemHolder
+import com.example.myapplication.model.Repository
+import com.example.myapplication.model.compareNewsItemsByDate
+import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.lang.ref.WeakReference
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 
-class MyAdapter(private val currentTabNumber : Int,
-                private val activity: WeakReference<MainActivity>
+class RecyclerViewAdapter(private val currentTabNumber : Int,
+                          private val activity: WeakReference<NewsListViewerActivity>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         const val TYPE_ITEM = 0
         const val TYPE_HEADER = 1
-        val usualFormat = SimpleDateFormat("dd.MM.yyyy", Locale("ru"))
     }
 
     private val headersIds : ArrayList<Int> = ArrayList()
@@ -69,32 +68,44 @@ class MyAdapter(private val currentTabNumber : Int,
     fun fillData(){
         when (currentTabNumber) {
             2 -> {
-                disposable.add(Repository.dao().getAllNews()
+                disposable.add(
+                    Repository.getAllNews()
                     .subscribeOn(Schedulers.io())
                     .flatMap{ newsList ->
-                        Flowable.fromIterable(newsList).filter { newsItem -> newsItem.isFav == 1 }.toList().toFlowable()
+                        Flowable.fromIterable(newsList)
+                            .filter{ newsItem -> Repository.isFavourite(newsItem.id) == 1 }
+                            .sorted{x, y -> compareNewsItemsByDate(x, y) }
+                            .toList()
+                            .toFlowable()
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { l ->
                         newsList = l
-                        sort()
+                        set()
                     })
             }
             else -> {
-                disposable.add(Repository.dao().getAllNews()
+                disposable.add(
+                    Repository.getAllNews()
                     .subscribeOn(Schedulers.io())
+                    .flatMap{ newsList ->
+                        Flowable.fromIterable(newsList)
+                            .sorted{x, y -> compareNewsItemsByDate(x, y) }
+                            .toList()
+                            .toFlowable()
+                    }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe{ l ->
                         newsList = l
-                        sort()
+                        set()
                     })
             }
         }
     }
 
-    private fun sort(){
+    private fun set(){
         var headersCount = 0
-        var prevDate : String? = null
+        var prevDate : Long? = null
         var i = 0
         headersIds.clear()
         map.clear()

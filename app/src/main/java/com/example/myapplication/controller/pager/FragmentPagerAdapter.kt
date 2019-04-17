@@ -1,11 +1,10 @@
-package com.example.myapplication.adapters
+package com.example.myapplication.controller.pager
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import com.example.myapplication.PageFragment
 
-class SampleFragmentPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+class FragmentPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
     companion object {
         const val PAGE_COUNT = 2
     }

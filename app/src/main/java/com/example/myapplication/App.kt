@@ -2,10 +2,17 @@ package com.example.myapplication
 
 import android.app.Application
 import android.arch.persistence.room.Room
-import com.example.myapplication.database.NewsDatabase
-import com.example.myapplication.database.NewsItem
+import com.example.myapplication.model.Repository
+import com.example.myapplication.model.network.ResponseCallback
+import com.example.myapplication.model.database.NewsDatabase
+import com.example.myapplication.model.getDaysAgo
+import com.example.myapplication.model.network.WebService
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.Retrofit
 
-class App : Application() {
+class App : Application(){
+    private val time = getDaysAgo(500).time
+
     override fun onCreate() {
         super.onCreate()
 
@@ -17,62 +24,16 @@ class App : Application() {
             .build()
             .newsDao()
 
-        Repository.set(newsDao)
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.tinkoff.ru")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
 
-        val news : ArrayList<NewsItem> = arrayListOf(
-            NewsItem(
-                1,
-                "Аэрофотосъёмка",
-                "Богачи и крестьяне",
-                "Аэрофотосъёмка ландшафта уже выявила земли богачей и процветающих крестьян.",
-                "17.03.2019"
-            ),
-            NewsItem(
-                2,
-                "Цирюльникъ",
-                "Стрижка ёжиком",
-                "Эй, цирюльникъ, ёжик выстриги, да щетину ряхи сбрей, феном вошь за печь гони!",
-                "17.03.2019"
-            ),
-            NewsItem(
-                3,
-                "Цитрус",
-                "Нелёгкая жизнь цитруса",
-                "В чащах юга жил-был цитрус... — да, но фальшивый экземпляръ!",
-                "16.03.2019"
-            ),
-            NewsItem(
-                4,
-                "Жлоб",
-                "Юные съёмщицы",
-                "Эй, жлоб! Где туз? Прячь юных съёмщиц в шкаф.",
-                "15.03.2019"
-            ),
-            NewsItem(
-                5,
-                "Мэр",
-                "Поедание щипцов",
-                "— Любя, съешь щипцы, — вздохнёт мэр, — кайф жгуч.",
-                "8.02.2019"
-            ),
-            NewsItem(
-                6,
-                "Граф",
-                "Изъятие плюша",
-                "Экс-граф? Плюш изъят. Бьём чуждый цен хвощ!",
-                "8.02.2019"
-            ),
-            NewsItem(
-                7,
-                "Грач",
-                "Мышь с хоботом",
-                "Южно-эфиопский грач увёл мышь за хобот на съезд ящериц.",
-                "8.02.2019"
-            )
-        )
+        val api = retrofit.create(WebService::class.java)
 
-        Thread{
-            news.forEach{newsDao.insert(it)}
-        }.start()
+        Repository.set(newsDao, api)
+        Repository.deleteOld(time)
+
+        api.getNewsList().enqueue(ResponseCallback())
     }
 }
