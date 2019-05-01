@@ -10,6 +10,7 @@ import retrofit2.Response
 import java.lang.ref.WeakReference
 import java.net.UnknownHostException
 
+/*
 class ResponseCallback(private val swiperReference : WeakReference<SwipeRefreshLayout>? = null) : Callback<NewsListResponse>{
     private val time = getDaysAgo(500).time
 
@@ -37,4 +38,4 @@ class ResponseCallback(private val swiperReference : WeakReference<SwipeRefreshL
         }.start()
         swiperReference?.get()?.isRefreshing = false
     }
-}
+}*/

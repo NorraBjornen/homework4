@@ -5,25 +5,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.text.Html
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
-import android.widget.Toast
 import com.example.myapplication.*
-import com.example.myapplication.model.network.NewsItemResponse
+import com.example.myapplication.model.setTextFromHtml
+import com.example.myapplication.model.toastShort
 import com.example.myapplication.model.Repository
 import com.example.myapplication.model.database.NewsItem
 import com.example.myapplication.model.getTextDateFromMilliseconds
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.net.UnknownHostException
 
-class NewsItemViewerActivity: AppCompatActivity(), Callback<NewsItemResponse> {
+class NewsItemViewerActivity: AppCompatActivity(){
     companion object {
         const val ARG_NEWS_ID = "news_id"
 
@@ -54,9 +50,9 @@ class NewsItemViewerActivity: AppCompatActivity(), Callback<NewsItemResponse> {
             Repository.getNewsItemById(id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe{ newsItem ->
-                this.newsItem = newsItem
-                Repository.api.getNewsItem(id!!).enqueue(this)
+            .subscribe{ item ->
+                this.newsItem = item
+                setFullInfo()
                 title = newsItem.text
                 date.text = getTextDateFromMilliseconds(newsItem.date)
                 if(newsItem.isFav == 1)
@@ -67,22 +63,52 @@ class NewsItemViewerActivity: AppCompatActivity(), Callback<NewsItemResponse> {
         return true
     }
 
+    private fun setFullInfo(){
+        disposable.add(App.api.getNewsItem(id!!)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                val str = it.payload.content
+                content.setTextFromHtml(str)
+                newsItem.content = str
+                updateContent(id!!, str)
+            }, {
+                if (it !is UnknownHostException)
+                    throw it
+                content.setTextFromHtml(newsItem.content)
+            }))
+    }
+
+    private fun updateContent(id : Int, str : String){
+        disposable.add(Repository.updateContent(id, str)
+            .subscribeOn(Schedulers.io())
+            .subscribe())
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.menu_item_fav -> {
                 if(newsItem.isFav == 1)
-                    Toast.makeText(this, resources.getString(R.string.newsItem_already), Toast.LENGTH_SHORT).show()
+                    toastShort(resources.getString(R.string.newsItem_already))
                 else{
-                    Repository.addToFavourite(newsItem)
-                    Toast.makeText(this, resources.getString(R.string.newsItem_added), Toast.LENGTH_SHORT).show()
-                    setIconsAdded()
+                    disposable.add(Repository.addToFavourite(newsItem)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe{
+                            toastShort(resources.getString(R.string.newsItem_added))
+                            setIconsAdded()
+                    })
                 }
                 return true
             }
             R.id.menu_item_del -> {
-                Repository.deleteFavourite(newsItem)
-                Toast.makeText(this, resources.getString(R.string.deleted), Toast.LENGTH_SHORT).show()
-                setIconsNotAdded()
+                disposable.add(Repository.deleteFavourite(newsItem)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe{
+                        toastShort(resources.getString(R.string.deleted))
+                        setIconsNotAdded()
+                })
                 return true
             }
         }
@@ -114,21 +140,6 @@ class NewsItemViewerActivity: AppCompatActivity(), Callback<NewsItemResponse> {
 
         content.text = resources.getString(R.string.loading)
     }
-
-
-    override fun onFailure(call: Call<NewsItemResponse>, t: Throwable) {
-        if (t !is UnknownHostException)
-            throw t
-        content.text = Html.fromHtml(newsItem.content, Html.FROM_HTML_MODE_COMPACT)
-    }
-
-    override fun onResponse(call: Call<NewsItemResponse>, response: Response<NewsItemResponse>) {
-        val str = response.body()?.payload?.content
-        content.text = Html.fromHtml(str, Html.FROM_HTML_MODE_COMPACT)
-        newsItem.content = str!!
-        Thread{ Repository.updateContent(id!!, str)}.start()
-    }
-
 
     override fun onStop() {
         super.onStop()

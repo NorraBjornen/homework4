@@ -7,7 +7,7 @@ import io.reactivex.Single
 
 @Dao
 interface NewsDao {
-    @Query("SELECT * FROM newsTable")
+    @Query("SELECT * FROM newsTable ORDER BY date")
     fun getAllNews(): Flowable<List<NewsItem>>
 
     @Query("SELECT * FROM newsTable WHERE id=:idToSelect")
