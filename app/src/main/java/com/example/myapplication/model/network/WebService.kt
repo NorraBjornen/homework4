@@ -7,8 +7,8 @@ import retrofit2.http.Query
 
 interface WebService {
     @GET("v1/news")
-    fun getNewsList(): Single<NewsListResponse>
+    fun getNewsList(): Single<TinkoffApiResponse<List<NewsTitle>>>
 
     @GET("v1/news_content")
-    fun getNewsItem(@Query("id") id : Int): Single<NewsItemResponse>
+    fun getNewsItem(@Query("id") id: Int): Single<TinkoffApiResponse<NewsItemDetails>>
 }

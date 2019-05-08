@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import com.example.myapplication.controller.pager.PageFragment
 import com.example.myapplication.model.Repository
 import com.example.myapplication.model.compareNewsItemsByDate
 import com.example.myapplication.model.database.NewsItem
@@ -19,79 +20,57 @@ class NewsPresenter : MvpPresenter<NewsView>(){
     private val map : HashMap<Int, NewsItem> = HashMap()
     private var newsList : List<NewsItem> = emptyList()
 
-    fun dispose(){
-        disposable.dispose()
-    }
-
-    fun fillData(currentTabNumber : Int){
-        subscribeLocal(currentTabNumber)
-        subscribeApi(currentTabNumber)
-    }
-
-    private fun subscribeLocal(currentTabNumber: Int){
+    fun subscribeLocal(currentTabNumber: Int){
         val source = Repository.getAllNewsLocal()
-        subscribe(source, currentTabNumber, false)
+        disposable.add(
+            source
+                .subscribeOn(Schedulers.io())
+                .flatMap{ newsList ->
+                    var sortedNews = Flowable.fromIterable(newsList)
+                        .sorted{x, y -> compareNewsItemsByDate(x, y) }
+
+                    if(currentTabNumber == PageFragment.TAB_NUMBER_FAVOURITE)
+                        sortedNews = sortedNews.filter{ newsItem -> Repository.isFavourite(newsItem.id) }
+
+                    return@flatMap sortedNews.toList().toFlowable()
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ l ->
+                    newsList = l
+                    setDataWithDateHeaders()
+                    viewState.stopRotating()
+                }, {
+                    viewState.stopRotating()
+                }))
+        subscribeApi()
     }
 
-    private fun subscribeApi(currentTabNumber: Int){
+    fun subscribeApi(){
         val source = Repository.getAllNewsFromApi()
-        subscribe(source, currentTabNumber, true)
+        disposable.add(
+            source
+                .subscribeOn(Schedulers.io())
+                .flatMap{ newsList ->
+                    Flowable.fromIterable(newsList)
+                        .sorted{x, y -> compareNewsItemsByDate(x, y) }
+                        .toList()
+                        .toFlowable()
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError {
+                    viewState.stopRotating()
+                    viewState.showNetworkError()
+                }
+                .observeOn(Schedulers.io())
+                .subscribe({ l ->
+                    Repository.insertAll(l)
+                    viewState.stopRotating()
+                }, {
+
+                }))
     }
 
-    private fun subscribe(source : Flowable<List<NewsItem>>, currentTabNumber: Int, isApi : Boolean){
-        when (currentTabNumber) {
-            2 -> {
-                disposable.add(
-                    source
-                        .subscribeOn(Schedulers.io())
-                        .flatMap{ newsList ->
-                            Flowable.fromIterable(newsList)
-                                .filter{ newsItem -> Repository.isFavourite(newsItem.id) == 1 }
-                                .toList()
-                                .toFlowable()
-                        }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ l ->
-                            if(!isApi){
-                                newsList = l
-                                set()
-                            } else
-                                viewState.stopRotating()
-                        }, {
-
-                        }))
-            }
-            else -> {
-                disposable.add(
-                    source
-                        .subscribeOn(Schedulers.io())
-                        .flatMap{ newsList ->
-                            Flowable.fromIterable(newsList)
-                                .sorted{x, y -> compareNewsItemsByDate(x, y) }
-                                .toList()
-                                .toFlowable()
-                        }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ l ->
-                            if(isApi){
-                                viewState.stopRotating()
-                                Thread{l.forEach{Repository.insert(it)}}.start()
-                            }
-                            else{
-                                newsList = l
-                                set()
-                            }
-                        }, {
-                            if(isApi){
-                                viewState.stopRotating()
-                                viewState.showNetworkError()
-                            }
-                        }))
-            }
-        }
-    }
-
-    private fun set(){
+    private fun setDataWithDateHeaders(){
         var headersCount = 0
         var d : String? = null
         var i = 0
@@ -118,5 +97,10 @@ class NewsPresenter : MvpPresenter<NewsView>(){
                 }
         }
         viewState.setData(newsList, headersIds, map)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.dispose()
     }
 }

@@ -62,12 +62,11 @@ dependencies {
     //retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
 
     // mvp
     implementation "com.arello-mobile:moxy-app-compat:$moxy_version"
     implementation "com.arello-mobile:moxy-android:$moxy_version"
     implementation "com.arello-mobile:moxy:$moxy_version"
     kapt "com.arello-mobile:moxy-compiler:$moxy_version"
-
-    implementation files('libs/adapter-rxjava2-2.5.0.jar')
 }

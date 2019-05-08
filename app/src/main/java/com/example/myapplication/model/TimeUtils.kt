@@ -34,21 +34,9 @@ fun compareNewsItemsByDate(x : NewsItem, y : NewsItem):Int{
     }
 }
 
-fun compareTimeByMilliseconds(x : Long, y : Long):Int{
-    return when {
-        x > y -> -1
-        x > y -> 1
-        else -> 0
-    }
-}
+fun compareTimeByMilliseconds(x: Long, y: Long): Int = x.compareTo(y)
 
-fun getMonthNameFromNumber(num: Int): String {
-    var month = "wrong number"
-    val months = DateFormatSymbols().months
-    if (num in 0 until 12)
-        month = months[num]
-    return month
-}
+fun getMonthNameFromNumber(num: Int) = DateFormatSymbols().months.getOrNull(num) ?: "error text"
 
 fun whichDay(c : Calendar) : DAYS {
     val today = Calendar.getInstance()

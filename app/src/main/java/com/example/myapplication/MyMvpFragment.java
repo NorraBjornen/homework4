@@ -4,7 +4,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import com.arellomobile.mvp.MvpDelegate;
-import com.arellomobile.mvp.MvpFragment;
 
 /**
  * Date: 19-Dec-15

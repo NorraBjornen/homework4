@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
@@ -50,16 +51,20 @@ class NewsItemViewerActivity: AppCompatActivity(){
             Repository.getNewsItemById(id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe{ item ->
+            .subscribe({ item ->
                 this.newsItem = item
                 setFullInfo()
                 title = newsItem.text
                 date.text = getTextDateFromMilliseconds(newsItem.date)
-                if(newsItem.isFav == 1)
+                if(newsItem.isFav)
                     setIconsAdded()
                 else
                     setIconsNotAdded()
-            })
+            }, {
+                Log.d("NewsItemActivity", it.toString())
+            }, {
+                Log.d("NewsItemActivity", "Something")
+            }))
         return true
     }
 
@@ -88,7 +93,7 @@ class NewsItemViewerActivity: AppCompatActivity(){
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.menu_item_fav -> {
-                if(newsItem.isFav == 1)
+                if(newsItem.isFav)
                     toastShort(resources.getString(R.string.newsItem_already))
                 else{
                     disposable.add(Repository.addToFavourite(newsItem)

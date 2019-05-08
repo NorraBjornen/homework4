@@ -3,7 +3,7 @@ package com.example.myapplication.model.database
 import android.arch.persistence.room.*
 import android.arch.persistence.room.OnConflictStrategy.REPLACE
 import io.reactivex.Flowable
-import io.reactivex.Single
+import io.reactivex.Maybe
 
 @Dao
 interface NewsDao {
@@ -11,10 +11,13 @@ interface NewsDao {
     fun getAllNews(): Flowable<List<NewsItem>>
 
     @Query("SELECT * FROM newsTable WHERE id=:idToSelect")
-    fun getNewsItemById(idToSelect: Int): Single<NewsItem>
+    fun getNewsItemById(idToSelect: Int): Maybe<NewsItem>
 
     @Insert(onConflict = REPLACE)
     fun insert(newsItem: NewsItem)
+
+    @Insert(onConflict = REPLACE)
+    fun insertAll(newsItems: List<NewsItem>)
 
     @Query("UPDATE newsTable SET fav=1 WHERE id=:id")
     fun addToFavourite(id: Int)
@@ -26,8 +29,8 @@ interface NewsDao {
     fun deleteFavourite(id: Int)
 
     @Query("SELECT Count(id) FROM newsTable WHERE fav=1 AND id=:id")
-    fun isFavourite(id: Int) : Int
+    fun isFavourite(id: Int) : Boolean
 
-    @Query("DELETE FROM newsTable WHERE date<:time")
+    @Query("DELETE FROM newsTable WHERE date<:time AND fav=0")
     fun deleteOld(time : Long)
 }

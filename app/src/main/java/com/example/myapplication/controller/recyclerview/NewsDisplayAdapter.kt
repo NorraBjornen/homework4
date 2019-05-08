@@ -1,18 +1,15 @@
 package com.example.myapplication.controller.recyclerview
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.example.myapplication.*
-import com.example.myapplication.activities.NewsListViewerActivity
 import com.example.myapplication.model.database.NewsItem
 import com.example.myapplication.controller.recyclerview.holders.DateHolder
 import com.example.myapplication.controller.recyclerview.holders.NewsItemHolder
-import java.lang.ref.WeakReference
 import kotlin.collections.HashMap
 
-class RecyclerViewAdapter(private val activity: WeakReference<NewsListViewerActivity>
+class NewsDisplayAdapter(private val onClickListener: OnRecyclerItemClickCallback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -35,14 +32,14 @@ class RecyclerViewAdapter(private val activity: WeakReference<NewsListViewerActi
                     parent,
                     false
                 ),
-                activity.get() as OnRecyclerItemClickCallback
+                onClickListener
             )
             else -> DateHolder(
                 LayoutInflater.from(parent.context).inflate(
                     R.layout.date_item,
                     parent,
                     false
-                ), activity.get() as Context
+                )
             )
         }
     }

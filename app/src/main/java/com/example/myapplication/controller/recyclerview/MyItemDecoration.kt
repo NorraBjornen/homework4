@@ -24,7 +24,7 @@ class MyItemDecoration (context: Context) : RecyclerView.ItemDecoration() {
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         val position = parent.getChildAdapterPosition(view)
         val viewType = parent.adapter!!.getItemViewType(position)
-        if (viewType == RecyclerViewAdapter.TYPE_ITEM && hasDividerOnBottom(view, parent, state))
+        if (viewType == NewsDisplayAdapter.TYPE_ITEM && hasDividerOnBottom(view, parent, state))
             outRect.set(0, 0, 0, height)
         else
             outRect.setEmpty()
@@ -35,7 +35,7 @@ class MyItemDecoration (context: Context) : RecyclerView.ItemDecoration() {
             val view = parent.getChildAt(i)
             val position = parent.getChildAdapterPosition(view)
             val viewType = parent.adapter!!.getItemViewType(position)
-            if (viewType == RecyclerViewAdapter.TYPE_ITEM && hasDividerOnBottom(view, parent, state)) {
+            if (viewType == NewsDisplayAdapter.TYPE_ITEM && hasDividerOnBottom(view, parent, state)) {
                 c.drawRect(
                     view.left.toFloat(),
                     view.bottom.toFloat(),
@@ -49,8 +49,8 @@ class MyItemDecoration (context: Context) : RecyclerView.ItemDecoration() {
 
     private fun hasDividerOnBottom(view: View, parent: RecyclerView, state: RecyclerView.State): Boolean {
         val position = (view.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
-        return (position < state.itemCount && parent.adapter!!.getItemViewType(position) != RecyclerViewAdapter.TYPE_HEADER
-                && parent.adapter!!.getItemViewType(position + 1) != RecyclerViewAdapter.TYPE_HEADER
+        return (position < state.itemCount && parent.adapter!!.getItemViewType(position) != NewsDisplayAdapter.TYPE_HEADER
+                && parent.adapter!!.getItemViewType(position + 1) != NewsDisplayAdapter.TYPE_HEADER
                 && parent.adapter!!.itemCount >= position + 2)
     }
 }

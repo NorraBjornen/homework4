@@ -15,7 +15,10 @@ class NewsListViewerActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
 
         val viewPager = findViewById<ViewPager>(R.id.viewpager)
-        viewPager.adapter = FragmentPagerAdapter(supportFragmentManager)
+        viewPager.adapter = FragmentPagerAdapter(supportFragmentManager,
+            resources.getString(R.string.recent),
+            resources.getString(R.string.favourites)
+        )
 
         val tabLayout = findViewById<TabLayout>(R.id.sliding_tabs)
         tabLayout.setupWithViewPager(viewPager)

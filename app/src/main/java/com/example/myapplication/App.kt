@@ -14,7 +14,8 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 
 class App : Application(){
     companion object{
-        val time = getDaysAgo(600).time
+        val daysAgoToLoad = getDaysAgo(600).time
+        val daysAgoToStore = getDaysAgo(60).time
         lateinit var dataBase : NewsDatabase
         lateinit var api : WebService
         lateinit var newsDao : NewsDao
@@ -25,7 +26,7 @@ class App : Application(){
         initDatabase()
         initApi()
 
-        Repository.deleteOld(time)
+        Repository.deleteOld(daysAgoToStore)
             .subscribeOn(Schedulers.io())
             .subscribe()
     }
@@ -42,7 +43,7 @@ class App : Application(){
 
     private fun initApi(){
         api = Retrofit.Builder()
-            .baseUrl("https://api.tinkoff.ru")
+            .baseUrl(resources.getString(R.string.api_base_url))
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
